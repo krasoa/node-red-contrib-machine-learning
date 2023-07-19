@@ -26,9 +26,9 @@ while True:
 
   x = df.iloc[:, :-1]
   y = df.iloc[:, -1].to_numpy().flatten()
-  
+
   classifier = None
-  
+
   if config['classifier'] == 'decision-tree-classifier':
   	from sklearn.tree import DecisionTreeClassifier
   	classifier = SKLW(path=save, model=DecisionTreeClassifier(**config['kwargs']))
@@ -38,7 +38,7 @@ while True:
   elif config['classifier'] == 'random-forest-classifier':
   	from sklearn.ensemble import RandomForestClassifier
   	classifier = SKLW(path=save, model=RandomForestClassifier(**config['kwargs']))
-  
+
   try:
   	#train model
   	classifier.fit(x, y)
