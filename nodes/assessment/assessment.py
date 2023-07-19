@@ -1,12 +1,13 @@
 import sklearn.metrics as m
 import json
 import sys
-import numpy
+import numpy as np
 from inspect import getargspec
 import pickle
 import ast
 from pathlib import Path
 import pandas
+from pprint import pprint
 
 #read configurations
 config = json.loads(input())
@@ -20,7 +21,7 @@ def load_data(key):
     y = df[df.columns[-1]]
   except Exception as e:
   	# lead file specified in the request
-    y = numpy.array(key)
+    y = np.array(key)
   return y
 
 while True:
@@ -34,8 +35,10 @@ while True:
 
   scores = {
   	"accuracy": m.accuracy_score(y_true, y_pred),
-  	"f1": m.f1_score(y_true, y_pred, average='macro'),
-  	"precision": m.precision_score(y_true, y_pred, average='macro'),
-  	"recall": m.precision_score(y_true, y_pred, average='macro'),
+  	"f1": m.f1_score(y_true, y_pred, average='micro'),
+  	"precision": m.precision_score(y_true, y_pred, average='micro'),
+  	"recall": m.recall_score(y_true, y_pred, average='micro'),
   }
-  print(scores)
+  for k, v in scores.items():
+    scores[k] = np.round(v, 3)
+  pprint(scores)

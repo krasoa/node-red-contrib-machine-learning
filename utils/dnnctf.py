@@ -58,7 +58,6 @@ class DNNCTF:
 		return tf.data.Dataset.from_tensor_slices(inputs).repeat().batch(self.config['batch_size'])
 
 	def fit(self, x, y):
-		print(x.shape, y.shape)
 		encoder = LabelEncoder()
 		y = encoder.fit_transform(y)
 		self.config['classes'] = encoder.classes_
@@ -76,7 +75,8 @@ class DNNCTF:
 		self.classifier.compile(loss="categorical_crossentropy", 
                                 optimizer=keras.optimizers.SGD(learning_rate=self.config['learning_rate']), 
                                 metrics=["accuracy"])
-		self.classifier.fit(x,y,batch_size=self.config['batch_size'], epochs=self.config['steps'], verbose=2, validation_split=0.1)
+
+		self.classifier.fit(x,y,batch_size=self.config['batch_size'], epochs=self.config['steps'], verbose=2)
 		self.__save()
 	
 
