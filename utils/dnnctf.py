@@ -1,11 +1,14 @@
 #Tensorflow dnnc's wrapper
+from sklearn.preprocessing import LabelEncoder
 
 import tensorflow as tf
+from tensorflow import keras 
 import logging
 import pickle
 from shutil import rmtree
 import os
 import numpy as np
+from pathlib import Path
 
 class DNNCTF:
 	def __init__(self, path, layers = [10, 10, 10], learning_rate=0.01, steps=1000, batch_size=10, del_prev_mod=False, load=False, log=False):
@@ -38,8 +41,8 @@ class DNNCTF:
 		if self.del_prev_mod:
 			self.__del_prev_mod(path)
 		try:
-			self.config = pickle.load(open(path + '\\config.b', "rb"))
-			self.__instantiate()
+			self.config = pickle.load(open(Path(path) / 'config.b', "rb"))
+			self.classifier = keras.models.load_model(path, compile=True)
 			return True
 		except:
 			if self.load:
@@ -54,49 +57,44 @@ class DNNCTF:
 			inputs = features
 		return tf.data.Dataset.from_tensor_slices(inputs).repeat().batch(self.config['batch_size'])
 
-	def __instantiate(self):
-		self.classifier = tf.estimator.DNNClassifier(
-			feature_columns=self.config['fc'],
-			hidden_units=self.config['layers'],
-			n_classes=len(self.config['classes']),
-			model_dir=self.config['path'],
-			optimizer=tf.train.GradientDescentOptimizer(
-				learning_rate=self.config['learning_rate']
-			))
-		try:
-			self.last = os.stat(self.config['path'] + '\\config.b').st_mtime
-		except:
-			self.last = 0
-
 	def fit(self, x, y):
-		if 'classes' not in self.config:
-			self.config['classes'] = list(set(y))
-		if 'fc' not in self.config:
-			self.config['fc'] = [tf.feature_column.numeric_column(str(k)) for k in x.keys()]
-		y = [self.config['classes'].index(i) for i in y]
-		self.__instantiate()
-		self.classifier.train(input_fn=lambda:self.__input_func(x, y), steps=self.config['steps'])
+		print(x.shape, y.shape)
+		encoder = LabelEncoder()
+		y = encoder.fit_transform(y)
+		self.config['classes'] = encoder.classes_
+		self.config['encoder'] = encoder
+      
+		y = keras.utils.to_categorical(y)
+		self.classifier = keras.models.Sequential()
+		self.classifier.add(keras.Input(x.shape[1]))
+
+		for layer in self.config['layers']:
+			self.classifier.add(
+              keras.layers.Dense(layer, activation = 'relu')
+            )
+		self.classifier.add(keras.layers.Dense(y.shape[1], activation='sigmoid'))
+		self.classifier.compile(loss="categorical_crossentropy", 
+                                optimizer=keras.optimizers.SGD(learning_rate=self.config['learning_rate']), 
+                                metrics=["accuracy"])
+		self.classifier.fit(x,y,batch_size=self.config['batch_size'], epochs=self.config['steps'], verbose=2, validation_split=0.1)
 		self.__save()
+	
 
 	def predict(self, x):
-		if self.classifier != None:
-			if isinstance(x, list):
-				x = np.array(x).T
-				x = {i: x[i] for i in range(len(x))}
-			predictions = self.classifier.predict(input_fn=lambda:self.__input_func(x))
-			length = 0
-			try:
-				length = len(x.iterrows())
-			except:
-				length = len(x[0])
-			return [self.config['classes'][p['class_ids'][0]] for i, p in zip(range(length), predictions)]
+		preds = self.classifier.predict(x).argmax(axis=1)
+		if self.config['encoder'] is not None: 
+			preds = self.config['encoder'].inverse_transform(preds)
+		else:
+			preds = np.array([self.config['classes'][i] for i in preds])
+		return preds
 
 	def __save(self):
-		pickle.dump(self.config, open(self.config['path'] + '\\config.b', "wb"))
+		self.classifier.save(self.config['path'])
+		pickle.dump(self.config, open(Path(self.config['path']) / 'config.b', "wb"))
 
 	def update(self):
 		try:
-			modified = os.stat(self.config['path'] + '\\config.b').st_mtime
+			modified = os.stat(Path(self.config['path']) / 'config.b').st_mtime
 		except:
 			modified = 0
 		if(modified > self.last):
