@@ -11,7 +11,8 @@ module.exports = function(RED){
 		node.config = {
 			path: path.join(config.datasetFolder, config.datasetName, config.partition),
 			input: Boolean(config.input),
-			output: Boolean(config.output)
+			output: Boolean(config.output),
+            path_only: Boolean(config.path_only)
 		}
 		
 		utils.run(RED, node, config)

@@ -9,7 +9,8 @@ module.exports = function(RED){
     node.file = __dirname + '/predictor.py'
     node.topic = 'predicted'
     node.config = {
-      path: path.join(config.modelPath, config.modelName)
+      path: path.join(config.modelPath, config.modelName),
+      predsPath: config.predsPath,
     }
 
     utils.run(RED, node, config)

@@ -7,21 +7,21 @@ module.exports = function(RED){
 		//set configurations
 		node.file = __dirname + '/assessment.py'
 		node.config = {
-			score: config.score
+          modelPath: config.modelPath,
 		}
 		node.data = {}
 
 		//handle messages
 		node.preMsg = (msg, done) => {
-			if(msg.topic.toLowerCase() == 'real'){
-				node.data.real = msg.payload
-			}
-			else if(msg.topic.toLowerCase() == 'predicted'){
-				node.data.predicted = msg.payload
-				if(node.data.real){
-					msg.payload = node.data
-					done(msg)
-				}
+    		if(msg.topic == 'real'){
+		 		node.data.real = msg.payload
+		 	}
+		 	else if(msg.topic == 'predicted'){
+		 		node.data.predicted = msg.payload
+		 		if(node.data.real){
+		 			msg.payload = node.data
+		 			done(msg)
+		 		}
 			}
 		}
 

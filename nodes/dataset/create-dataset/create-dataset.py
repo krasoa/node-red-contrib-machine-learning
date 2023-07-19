@@ -1,6 +1,7 @@
 import json
 import pandas
 import os
+from pathlib import Path
 
 #read configurations
 config = json.loads(input())
@@ -29,7 +30,7 @@ while True:
 	if not os.path.isdir(config['save']):
 		os.makedirs(config['save'], exist_ok=True)
 
-	x_train.to_csv(config['save'] + '/train.csv', header=None, index=False)
-	x_test.to_csv(config['save'] + '/test.csv', header=None, index=False)
+	x_train.to_csv(Path(config['save']) / 'train.csv', header=None, index=False)
+	x_test.to_csv(Path(config['save']) / 'test.csv', header=None, index=False)
 
 	print('Dataset created.')
