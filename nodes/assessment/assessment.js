@@ -8,6 +8,7 @@ module.exports = function(RED){
 		node.file = __dirname + '/assessment.py'
 		node.config = {
           modelPath: config.modelPath,
+          class: config.class
 		}
 		node.data = {}
 

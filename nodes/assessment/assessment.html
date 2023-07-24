@@ -5,6 +5,7 @@
 		defaults: {
 			name: {value:""},
             modelPath: {value: ""},
+            class: {value: false},
 		},
 		inputs:1,
 		outputs:2,
@@ -24,6 +25,10 @@
 		<label for="node-input-modelPath"><i class="icon-tag"></i>Model Path</label>
 		<input type="text" id="node-input-modelPath" placeholder="/data/models">
 	</div>
+    <div class="form-row">
+    <label for="node-input-class"><i class="icon-tag"></i>Display per class metrics</label>
+    <input type="checkbox" id="node-input-class">
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="assessment">
