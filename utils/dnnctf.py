@@ -73,7 +73,7 @@ class DNNCTF:
             )
 		self.classifier.add(keras.layers.Dense(y.shape[1], activation='sigmoid'))
 		self.classifier.compile(loss="categorical_crossentropy", 
-                                optimizer=keras.optimizers.SGD(learning_rate=self.config['learning_rate']), 
+                                optimizer=keras.optimizers.Adam(learning_rate=self.config['learning_rate']), 
                                 metrics=["accuracy"])
 
 		self.classifier.fit(x,y,batch_size=self.config['batch_size'], epochs=self.config['steps'], verbose=2)
