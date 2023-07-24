@@ -36,17 +36,7 @@ while True:
 
   scores = {} 
   
-  scores["Total"] = {
-      "accuracy": m.accuracy_score(y_true, y_pred),
-      "f1": m.f1_score(y_true, y_pred, average='macro'),
-      "precision": m.precision_score(y_true, y_pred, average='macro'),
-      "recall": m.recall_score(y_true, y_pred, average='macro'),
-  }
 
-  for k, v in scores["Total"].items():
-    scores["Total"][k] = np.round(v, 3)
-  
-  scores['Total']['conf_matrix'] = m.confusion_matrix(y_true, y_pred).tolist()
 
   if 'class' in config.keys() and config['class']:
     for target_class in sorted(np.unique(y_true)):
@@ -78,7 +68,17 @@ while True:
 
       specificities.append( tn / (tn + fp))
       
+  scores["Total"] = {
+      "accuracy": m.accuracy_score(y_true, y_pred),
+      "f1": m.f1_score(y_true, y_pred, average='macro'),
+      "precision": m.precision_score(y_true, y_pred, average='macro'),
+      "recall": m.recall_score(y_true, y_pred, average='macro'),
+      "specificity": np.round(np.mean(specificities),3)
+  }
 
-  scores['Total']['specificity'] = np.round(np.mean(specificities),3)
+  for k, v in scores["Total"].items():
+    scores["Total"][k] = np.round(v, 3)
+  
+  scores['Total']['conf_matrix'] = m.confusion_matrix(y_true, y_pred).tolist()
 
   print(json.dumps(scores))
