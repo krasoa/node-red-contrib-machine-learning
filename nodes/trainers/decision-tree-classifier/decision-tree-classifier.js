@@ -11,7 +11,7 @@ module.exports = function(RED){
 			classifier: 'decision-tree-classifier',
 			save: path.join(config.savePath, config.saveName),
 			kwargs: {
-				max_depth: parseInt(config.depth) || undefined,
+				max_depth: parseInt(config.maxDepth) || undefined,
 				criterion: config.criterion || undefined,
 				splitter: config.splitter || undefined
 			}
